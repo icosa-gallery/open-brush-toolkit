@@ -2,6 +2,8 @@
 
 The Tilt Brush Toolkit is a collection of scripts and assets that allow you to use [Tilt Brush](http://g.co/tiltbrush) data in your creative projects. If you simply want to import Tilt Brush geometry into Unity, this package is mostly superseded by [Poly Toolkit](https://github.com/googlevr/poly-toolkit-unity).
 
+__If you get an error in newer versions of Unity, please delete the entire folder Assets/ThirdParty/Assemblies/Standalone__
+
 ## Contents
 
 ### Unity SDK
