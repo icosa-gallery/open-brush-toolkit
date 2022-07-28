@@ -1,0 +1,13 @@
+{
+  "name": "gallery.icosa.open-brush-toolkit",
+  "version": "1.0.0",
+  "displayName": "Open Brush Toolkit",
+  "description": "Scripts and assets that help you use Open/Tilt Brush data in your creative projects.",
+  "unity": "2018.4",
+  "author": {
+    "name": "Open Brush Authors",
+    "email": "support@icosa.gallery",
+    "url": "https://openbrush.app"
+  },
+  "scopedRegistries": []
+}

@@ -86,6 +86,12 @@
       },
       "url": "https://packages.unity.com"
     },
+    "gallery.icosa.open-brush-toolkit": {
+      "version": "file:gallery.icosa.open-brush-toolkit",
+      "depth": 0,
+      "source": "embedded",
+      "dependencies": {}
+    },
     "com.unity.modules.androidjni": {
       "version": "1.0.0",
       "depth": 0,
