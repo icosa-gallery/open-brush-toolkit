@@ -7,7 +7,10 @@
   "author": {
     "name": "Open Brush Authors",
     "email": "support@icosa.gallery",
-    "url": "https://openbrush.app"
+    "url": "https://github.com/icosa-gallery/open-brush-toolkit"
   },
-  "scopedRegistries": []
+  "scopedRegistries": [],
+  "dependencies": {
+    "com.unity.nuget.newtonsoft-json": "3.0.0"
+  }
 }
