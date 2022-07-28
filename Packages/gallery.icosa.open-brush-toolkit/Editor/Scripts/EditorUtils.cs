@@ -21,9 +21,9 @@ namespace TiltBrushToolkit {
 
 public class EditorUtils {
 
-  #region Tilt Menu
+  #region Open Brush Menu
 
-  [MenuItem("Tilt Brush/Labs/Separate strokes by brush color")]
+  [MenuItem("Open Brush/Labs/Separate strokes by brush color")]
   public static void ExplodeSketchByColor() {
     if (!EditorUtility.DisplayDialog ("Different Strokes", "Separate brush strokes of different colors into separate objects? \n* Note: This is an experimental feature!", "OK", "Cancel"))
       return;
@@ -111,7 +111,7 @@ public class EditorUtils {
     EditorUtility.ClearProgressBar();
   }
 
-  [MenuItem("Tilt Brush/Labs/Separate strokes by brush color", true)]
+  [MenuItem("Open Brush/Labs/Separate strokes by brush color", true)]
   public static bool ExplodeSketchByColorValidate() {
     // TODO: validate that selection is a model
     foreach (var o in Selection.gameObjects) {

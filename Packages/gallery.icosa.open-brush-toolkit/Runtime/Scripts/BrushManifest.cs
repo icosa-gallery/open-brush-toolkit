@@ -48,7 +48,7 @@ public class BrushManifest : ScriptableObject {
 
 #if true
 #if UNITY_EDITOR
-  [UnityEditor.MenuItem("Tilt Brush/Update Manifest")]
+  [UnityEditor.MenuItem("Open Brush/Update Manifest")]
   public static void MenuItem_UpdateManifest() {
     BrushManifest manifest = TbtSettings.BrushManifest;
     manifest.m_Brushes = UnityEditor.AssetDatabase.FindAssets("t:BrushDescriptor")
