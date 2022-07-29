@@ -42,7 +42,7 @@ Category {
       #pragma multi_compile __ TBT_LINEAR_TARGET
       #include "UnityCG.cginc"
       #include "Packages/gallery.icosa.open-brush-toolkit/Runtime/Shaders/Include/Brush.cginc"
-      #include "../../../Shaders/Include/Particles.cginc"
+      #include "Packages/gallery.icosa.open-brush-toolkit/Runtime/Shaders/Include/Particles.cginc"
       #include "Packages/gallery.icosa.open-brush-toolkit/Runtime/Scripts/ThirdParty/Noise/Shaders/Noise.cginc"
 
       sampler2D _MainTex;
