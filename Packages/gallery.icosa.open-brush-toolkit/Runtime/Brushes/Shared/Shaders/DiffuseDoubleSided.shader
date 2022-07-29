@@ -27,7 +27,7 @@ SubShader {
 CGPROGRAM
 #pragma surface surf Lambert vertex:vert alphatest:_Cutoff addshadow
 #pragma multi_compile __ TBT_LINEAR_TARGET
-#include "../../../Shaders/Include/Brush.cginc"
+#include "Packages/gallery.icosa.open-brush-toolkit/Runtime/Shaders/Include/Brush.cginc"
 #pragma target 3.0
 
 sampler2D _MainTex;
@@ -62,7 +62,7 @@ SubShader {
 CGPROGRAM
 #pragma surface surf Lambert vertex:vert alphatest:_Cutoff
 #pragma multi_compile __ TBT_LINEAR_TARGET
-#include "../../../Shaders/Include/Brush.cginc"
+#include "Packages/gallery.icosa.open-brush-toolkit/Runtime/Shaders/Include/Brush.cginc"
 #pragma target 3.0
 
 sampler2D _MainTex;

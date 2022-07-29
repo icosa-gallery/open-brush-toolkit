@@ -27,7 +27,7 @@ Properties {
     #pragma surface surf StandardSpecular vertex:vert
     #pragma multi_compile __ AUDIO_REACTIVE
     #pragma multi_compile __ TBT_LINEAR_TARGET
-    #include "../../../Shaders/Include/Brush.cginc"
+    #include "Packages/gallery.icosa.open-brush-toolkit/Runtime/Shaders/Include/Brush.cginc"
 
     struct Input {
       float4 color : Color;

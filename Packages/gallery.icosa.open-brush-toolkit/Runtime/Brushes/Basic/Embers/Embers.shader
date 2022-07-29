@@ -42,9 +42,9 @@ Category {
       #pragma target 3.0
 
       #include "UnityCG.cginc"
-      #include "../../../Shaders/Include/Brush.cginc"
+      #include "Packages/gallery.icosa.open-brush-toolkit/Runtime/Shaders/Include/Brush.cginc"
       #include "../../../Shaders/Include/Particles.cginc"
-      #include "Assets/ThirdParty/Noise/Shaders/Noise.cginc"
+      #include "Packages/gallery.icosa.open-brush-toolkit/Runtime/Scripts/ThirdParty/Noise/Shaders/Noise.cginc"
 
       sampler2D _MainTex;
       fixed4 _TintColor;

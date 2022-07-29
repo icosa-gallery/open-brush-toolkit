@@ -33,7 +33,7 @@ Category {
       #pragma multi_compile __ AUDIO_REACTIVE
       #pragma multi_compile __ TBT_LINEAR_TARGET
       #include "UnityCG.cginc"
-      #include "../../../Shaders/Include/Brush.cginc"
+      #include "Packages/gallery.icosa.open-brush-toolkit/Runtime/Shaders/Include/Brush.cginc"
 
       sampler2D _MainTex;
 

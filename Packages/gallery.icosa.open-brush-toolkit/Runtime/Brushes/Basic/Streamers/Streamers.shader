@@ -41,7 +41,7 @@ Category {
       #pragma target 3.0 // Required -> compiler error: too many instructions for SM 2.0
 
       #include "UnityCG.cginc"
-      #include "../../../Shaders/Include/Brush.cginc"
+      #include "Packages/gallery.icosa.open-brush-toolkit/Runtime/Shaders/Include/Brush.cginc"
 
       sampler2D _MainTex;
 

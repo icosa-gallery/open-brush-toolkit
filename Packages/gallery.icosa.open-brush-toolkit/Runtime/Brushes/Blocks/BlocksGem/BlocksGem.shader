@@ -45,7 +45,7 @@ Shader  "Blocks/BlocksGem"  {
   #pragma target 3.0
   #pragma multi_compile __ TBT_LINEAR_TARGET
 
-  #include "../../../Shaders/Include/Brush.cginc"
+  #include "Packages/gallery.icosa.open-brush-toolkit/Runtime/Shaders/Include/Brush.cginc"
 
   uniform float _Frequency;
   uniform float _Jitter;

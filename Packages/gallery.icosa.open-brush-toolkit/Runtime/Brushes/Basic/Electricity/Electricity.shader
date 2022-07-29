@@ -21,8 +21,8 @@ Properties {
 
 CGINCLUDE
   #include "UnityCG.cginc"
-  #include "../../../Shaders/Include/Brush.cginc"
-  #include "Assets/ThirdParty/Noise/Shaders/Noise.cginc"
+  #include "Packages/gallery.icosa.open-brush-toolkit/Runtime/Shaders/Include/Brush.cginc"
+  #include "Packages/gallery.icosa.open-brush-toolkit/Runtime/Scripts/ThirdParty/Noise/Shaders/Noise.cginc"
 
   struct appdata_t {
     float4 vertex : POSITION;

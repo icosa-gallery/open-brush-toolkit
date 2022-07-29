@@ -31,7 +31,7 @@ Shader "Brush/Special/CelVinyl" {
         #pragma fragment frag
         #pragma multi_compile __ TBT_LINEAR_TARGET
         #pragma multi_compile_fog
-        #include "../../../Shaders/Include/Brush.cginc"
+        #include "Packages/gallery.icosa.open-brush-toolkit/Runtime/Shaders/Include/Brush.cginc"
         #include "UnityCG.cginc"
         #pragma target 3.0
 

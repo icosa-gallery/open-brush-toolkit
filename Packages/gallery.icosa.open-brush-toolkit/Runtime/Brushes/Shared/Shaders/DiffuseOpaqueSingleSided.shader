@@ -24,7 +24,7 @@ Cull Back
 CGPROGRAM
 #pragma surface surf Lambert vertex:vert addshadow
 #pragma multi_compile __ TBT_LINEAR_TARGET
-#include "../../../Shaders/Include/Brush.cginc"
+#include "Packages/gallery.icosa.open-brush-toolkit/Runtime/Shaders/Include/Brush.cginc"
 
 fixed4 _Color;
 

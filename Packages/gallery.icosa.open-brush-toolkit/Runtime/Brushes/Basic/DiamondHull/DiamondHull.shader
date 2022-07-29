@@ -28,8 +28,8 @@ Shader "Brush/Special/DiamondHull" {
       #pragma surface surf StandardSpecular vertex:vert nofog
       #pragma multi_compile __ AUDIO_REACTIVE
       #pragma multi_compile __ TBT_LINEAR_TARGET
-      #include "../../../Shaders/Include/Brush.cginc"
-      #include "Assets/ThirdParty/Noise/Shaders/Noise.cginc"
+      #include "Packages/gallery.icosa.open-brush-toolkit/Runtime/Shaders/Include/Brush.cginc"
+      #include "Packages/gallery.icosa.open-brush-toolkit/Runtime/Scripts/ThirdParty/Noise/Shaders/Noise.cginc"
 
       sampler2D _MainTex;
 
