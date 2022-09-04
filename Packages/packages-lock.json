@@ -1,5 +1,13 @@
 {
   "dependencies": {
+    "app.openbrush.toolkit": {
+      "version": "file:app.openbrush.toolkit",
+      "depth": 0,
+      "source": "embedded",
+      "dependencies": {
+        "com.unity.nuget.newtonsoft-json": "2.0.0"
+      }
+    },
     "com.unity.2d.sprite": {
       "version": "1.0.0",
       "depth": 0,
@@ -92,14 +100,6 @@
         "com.unity.modules.xr": "1.0.0"
       },
       "url": "https://packages.unity.com"
-    },
-    "gallery.icosa.open-brush-toolkit": {
-      "version": "file:gallery.icosa.open-brush-toolkit",
-      "depth": 0,
-      "source": "embedded",
-      "dependencies": {
-        "com.unity.nuget.newtonsoft-json": "3.0.0"
-      }
     },
     "com.unity.modules.androidjni": {
       "version": "1.0.0",
