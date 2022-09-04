@@ -2,7 +2,7 @@
     "name": "OpenBrush.Toolkit.Editor.ThirdParty",
     "rootNamespace": "",
     "references": [
-        "OpenBrush.Toolkit.ThirdParty"
+        "GUID:56ceeb69b3820614298ba3264a0d0180"
     ],
     "includePlatforms": [
         "Editor"
