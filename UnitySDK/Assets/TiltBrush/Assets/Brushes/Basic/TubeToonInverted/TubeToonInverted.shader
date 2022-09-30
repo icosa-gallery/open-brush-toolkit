@@ -44,7 +44,7 @@ CGINCLUDE
   {
 
     v2f o;
-    v.vertex.xyz += v.normal.xyz * inflate;
+    v.vertex.xyz += normalize(v.normal.xyz) * inflate * .1; // Fudge the fix by eye
     o.vertex = UnityObjectToClipPos(v.vertex);
       o.color = v.color;
       o.color.a = 1;
