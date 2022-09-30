@@ -76,7 +76,6 @@ Category {
       {
         half4 c = tex2D(_MainTex, i.texcoord);
         c = i.color * c;
-        FRAG_MOBILESELECT(c)
         return float4(c.rgb * c.a, 1.0);
       }
       ENDCG
