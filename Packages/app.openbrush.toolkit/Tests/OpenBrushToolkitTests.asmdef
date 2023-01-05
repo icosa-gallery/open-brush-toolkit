@@ -1,0 +1,19 @@
+{
+    "name": "OpenBrush.Toolkit.Tests",
+    "rootNamespace": "",
+    "references": [
+        "GUID:4b324bf907ff662458d963e47ba57240",
+        "GUID:b3a4a3720810d08488d4e977dc2e8c2f"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

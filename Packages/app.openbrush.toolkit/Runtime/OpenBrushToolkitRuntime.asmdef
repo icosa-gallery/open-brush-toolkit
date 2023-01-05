@@ -1,0 +1,16 @@
+{
+    "name": "OpenBrush.Toolkit",
+    "rootNamespace": "",
+    "references": [
+        "GUID:56ceeb69b3820614298ba3264a0d0180"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": true,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
