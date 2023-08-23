@@ -16,6 +16,7 @@ using UnityEngine;
 using UnityEditor;
 using System.Collections.Generic;
 using System.IO;
+using UnityEngine.Rendering;
 
 namespace TiltBrushToolkit {
 
@@ -140,6 +141,7 @@ public class EditorUtils {
 
   public static Mesh GetMeshSubset(Mesh OriginalMesh, int[] Triangles) {
     Mesh newMesh = new Mesh();
+    newMesh.indexFormat = IndexFormat.UInt32;
     newMesh.name = OriginalMesh.name;
     newMesh.vertices = OriginalMesh.vertices;
     newMesh.triangles = Triangles;
