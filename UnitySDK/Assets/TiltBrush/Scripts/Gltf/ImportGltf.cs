@@ -21,6 +21,7 @@ using System.Text.RegularExpressions;
 
 using Newtonsoft.Json;
 using UnityEngine;
+using UnityEngine.Rendering;
 
 using Debug = UnityEngine.Debug;
 using Semantic = TiltBrushToolkit.BrushDescriptor.Semantic;
@@ -67,7 +68,7 @@ public static class ImportGltf {
     ContractResolver = new GltfJsonContractResolver()
   };
 
-  const int kUnityMeshMaxVerts = 65534;
+  const uint kUnityMeshMaxVerts = 2147483646;
   const float kExtremeSizeMeters = 371f;
 
   public class GltfImportResult {
@@ -625,6 +626,7 @@ public static class ImportGltf {
 
   static Mesh UnityFromPrecursor(MeshPrecursor precursor) {
     var mesh = new Mesh();
+    mesh.indexFormat = IndexFormat.UInt32;
 
     mesh.vertices = precursor.vertices;
     if (precursor.normals != null)  { mesh.normals = precursor.normals;   }
@@ -658,7 +660,7 @@ public static class ImportGltf {
   // assumptions (commented inline). It will work for Tilt Brush topology,
   // but is definitely not suitable for arbitrary meshes.
   static IEnumerable<MeshSubset> GenerateMeshSubsets(
-      ushort[] triangles, int numVerts, int maxSubsetVerts = kUnityMeshMaxVerts) {
+      ushort[] triangles, int numVerts, uint maxSubsetVerts = kUnityMeshMaxVerts) {
 
     // Early out if there's no split -- saves time figuring out which verts are used.
     if (numVerts <= maxSubsetVerts) {
@@ -866,7 +868,7 @@ public static class ImportGltf {
 
     // Tilt Brush particle meshes are sensitive to being broken up.
     // The verts may shift, but the shader requires that (vertexId % 4) not change.
-    int maxSubsetVerts = kUnityMeshMaxVerts - 4;
+    uint maxSubsetVerts = kUnityMeshMaxVerts - 4;
     foreach (var readonlySubset in GenerateMeshSubsets(triangles, numVerts, maxSubsetVerts)) {
       var mesh = new MeshPrecursor();
 
