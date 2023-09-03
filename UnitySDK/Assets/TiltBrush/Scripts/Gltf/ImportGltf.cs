@@ -660,7 +660,7 @@ public static class ImportGltf {
   // assumptions (commented inline). It will work for Tilt Brush topology,
   // but is definitely not suitable for arbitrary meshes.
   static IEnumerable<MeshSubset> GenerateMeshSubsets(
-      ushort[] triangles, int numVerts, uint maxSubsetVerts = kUnityMeshMaxVerts) {
+      uint[] triangles, int numVerts, uint maxSubsetVerts = kUnityMeshMaxVerts) {
 
     // Early out if there's no split -- saves time figuring out which verts are used.
     if (numVerts <= maxSubsetVerts) {
@@ -679,12 +679,12 @@ public static class ImportGltf {
     for (int iTri = 0; iTri < count; /* manual loop advance */) {
       // Assumption #1: triVerts.Size << maxSubsetVerts
       IntRange triVerts; {
-        int t0 = triangles[iTri];
-        int t1 = triangles[iTri + 1];
-        int t2 = triangles[iTri + 2];
+        uint t0 = triangles[iTri];
+        uint t1 = triangles[iTri + 1];
+        uint t2 = triangles[iTri + 2];
         triVerts = new IntRange {
-          min = Mathf.Min(t0, t1, t2),
-          max = Mathf.Max(t0, t1, t2) + 1
+          min = (int)Mathf.Min(t0, t1, t2),
+          max = (int)Mathf.Max(t0, t1, t2) + 1
         };
       }
 
@@ -841,7 +841,7 @@ public static class ImportGltf {
 
     int numVerts = prim.GetAttributePtr("POSITION").count;
 
-    ushort[] triangles; {
+    uint[] triangles; {
       GltfAccessorBase accessor = prim.IndicesPtr;
       IntRange range = new IntRange { max = accessor.count };
       Array genericTriangles = GetDataAsArray(accessor, range, null);
@@ -850,14 +850,14 @@ public static class ImportGltf {
         // If Unity has API support _and_ the hardware has runtime support
         // for 32-bit indices, maybe we can avoid this.
         UInt32[] typedTriangles = (UInt32[])genericTriangles;
-        triangles = new ushort[typedTriangles.Length];
+        triangles = new uint[typedTriangles.Length];
         unchecked {
           for (int i = 0; i < typedTriangles.Length; ++i) {
             triangles[i] = (ushort) typedTriangles[i];
           }
         }
-      } else if (genericTriangles is ushort[]) {
-        triangles = (ushort[])genericTriangles;
+      } else if (genericTriangles is uint[]) {
+        triangles = (uint[])genericTriangles;
       } else {
         throw new NotSupportedException(
             string.Format("Unsupported: {0} indices", genericTriangles.GetType()));
@@ -916,10 +916,11 @@ public static class ImportGltf {
         Debug.Assert(triangleSubsetLength % 3 == 0);
         // Re-index verts. Also reverse winding since the basis-change matrix has a mirroring.
         // Also change from ushort -> int
-        for (int i = 0; i < triangleSubsetLength; i += 3) {
-          triangleSubset[i    ] = triangles[subset.triangles.min + i    ] - subset.vertices.min;
-          triangleSubset[i + 1] = triangles[subset.triangles.min + i + 2] - subset.vertices.min;
-          triangleSubset[i + 2] = triangles[subset.triangles.min + i + 1] - subset.vertices.min;
+        for (int i = 0; i < triangleSubsetLength; i += 3)
+        {
+          triangleSubset[i    ] = (int)(triangles[subset.triangles.min + i    ] - subset.vertices.min);
+          triangleSubset[i + 1] = (int)(triangles[subset.triangles.min + i + 2] - subset.vertices.min);
+          triangleSubset[i + 2] = (int)(triangles[subset.triangles.min + i + 1] - subset.vertices.min);
         }
         mesh.triangles = triangleSubset;
       }
