@@ -856,6 +856,13 @@ public static class ImportGltf {
         }
       } else if (genericTriangles is ushort[]) {
         triangles = (ushort[])genericTriangles;
+      } else if (genericTriangles is byte[]) {
+        triangles = new ushort[genericTriangles.Length];
+        var temp = (byte[])genericTriangles;
+        for (int i = 0; i < temp.Length; i++)
+        {
+          triangles[i] = temp[i];
+        }
       } else {
         throw new NotSupportedException(
             string.Format("Unsupported: {0} indices", genericTriangles.GetType()));
@@ -1229,6 +1236,14 @@ GenericTexcoord:
       var destination = new ushort[eltRange.Size];
       fixed (void* destPtr = destination) {
         ReadAccessorData(accessor, eltRange, sizeof(ushort), (IntPtr)destPtr);
+      }
+      result = destination;
+      return true;
+    } else if (accessor.type == "SCALAR"
+               && accessor.componentType == GltfAccessorBase.ComponentType.UNSIGNED_BYTE) {
+      var destination = new byte[eltRange.Size];
+      fixed (void* destPtr = destination) {
+        ReadAccessorData(accessor, eltRange, sizeof(byte), (IntPtr)destPtr);
       }
       result = destination;
       return true;

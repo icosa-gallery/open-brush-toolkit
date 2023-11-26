@@ -91,7 +91,7 @@ public class GltfMaterialConverter {
   public static IEnumerable LoadTexturesCoroutine(
       GltfRootBase root, IUriLoader loader, List<Texture2D> loaded) {
     foreach (GltfTextureBase gltfTexture in NecessaryTextures(root)) {
-      if (IsTiltBrushHostedUri(gltfTexture.SourcePtr.uri)) {
+      if (gltfTexture.SourcePtr.uri == null || IsTiltBrushHostedUri(gltfTexture.SourcePtr.uri)) {
         Debug.LogWarningFormat("Texture {0} uri {1} was considered necessary",
                                gltfTexture.GltfId, gltfTexture.SourcePtr.uri);
         continue;
