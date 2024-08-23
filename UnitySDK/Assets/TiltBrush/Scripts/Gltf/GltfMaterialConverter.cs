@@ -201,6 +201,34 @@ public class GltfMaterialConverter {
     // have succeeded and we wouldn't be trying to create an new material.
     Guid instanceGuid = ParseGuidFromMaterial(gltfMat);
     Guid templateGuid = ParseGuidFromShader(gltfMat);
+    if (templateGuid == Guid.Empty)
+    {
+      string jsonUrl;
+      try
+      {
+        jsonUrl = gltfMat.TechniqueExtras["gvrss"];
+      }
+      catch (Exception e)
+      {
+        Debug.LogErrorFormat("Unexpected: cannot find template material {0} for {1}",
+          templateGuid, instanceGuid);
+        return null;
+      }
+
+      if (jsonUrl.EndsWith("paper.json"))
+      {
+        templateGuid = new Guid("0e87b49c-6546-3a34-3a44-8a556d7d6c3e");
+      }
+      else if (jsonUrl.EndsWith("glass.json"))
+      {
+        templateGuid = new Guid("3d813d82-5839-4450-8ddc-8e889ecd96c7");
+      }
+      else if (jsonUrl.EndsWith("gem.json"))
+      {
+        templateGuid = new Guid("232998f8-d357-47a2-993a-53415df9be10");
+      }
+      instanceGuid = templateGuid;
+    }
 
     BrushDescriptor desc;
     if (!TbtSettings.Instance.TryGetBrush(templateGuid, out desc)) {
