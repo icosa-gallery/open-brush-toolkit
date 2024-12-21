@@ -240,6 +240,7 @@ public class EditorUtils {
           Vector3[] normals = new Vector3[vertexCount];
           Color[] colors = new Color[vertexCount];
 
+
           NativeArray<int>.Copy(allNewTriangles, startingIndexInTrianglesArray, trianglesForStroke, 0, triangleCount);
           Array.Copy(mesh.vertices, startingIndexInVerticesArray, vertices, 0, vertexCount);
           Array.Copy(mesh.uv, startingIndexInVerticesArray, uv, 0, vertexCount);
@@ -247,7 +248,7 @@ public class EditorUtils {
           Array.Copy(mesh.colors, startingIndexInVerticesArray, colors, 0, vertexCount);
 
 
-          var newMesh_ = GetMeshSubset(mesh,trianglesForStroke,vertices, uv, normals, colors, strokeIndex);
+          var newMesh_ = GetMeshSubset(mesh,trianglesForStroke,vertices, uv, uv2.ToArray(),normals, colors, strokeIndex);
 
           strokeGameObject.GetComponent<MeshFilter>().mesh = newMesh_;
           strokeIndex++;
@@ -375,15 +376,21 @@ public class EditorUtils {
     return v;
   }
 
-  public static Mesh GetMeshSubset(Mesh OriginalMesh, int[] Triangles, Vector3[] vertices = null, Vector2[] uv = null, Vector3[] normals = null,
+  public static Mesh GetMeshSubset(Mesh OriginalMesh, int[] Triangles, Vector3[] vertices = null, Vector2[] uv = null, Vector3[] uv2 =  null, Vector3[] normals = null,
     Color[] colors = null, int index = 0) {
     Mesh newMesh = new Mesh();
     newMesh.name = OriginalMesh.name;
     newMesh.vertices = vertices ?? OriginalMesh.vertices;
     newMesh.triangles = Triangles;
     newMesh.uv = uv ?? OriginalMesh.uv;
-    //newMesh.uv2 = OriginalMesh.uv2; <-- not needed for now
-    // newMesh.uv3 = OriginalMesh.uv3;
+    if (uv2 != null)
+    {
+      newMesh.SetUVs(1,uv2);
+    }
+    else
+    {
+      newMesh.uv2 = OriginalMesh.uv2;
+    }
     newMesh.colors = colors ?? OriginalMesh.colors;
     newMesh.subMeshCount = OriginalMesh.subMeshCount;
     newMesh.normals = normals ?? OriginalMesh.normals;
