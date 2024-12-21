@@ -45,6 +45,11 @@ public class EditorUtils {
 
     AssetDatabase.StartAssetEditing();
 
+    if (!AssetDatabase.IsValidFolder("Assets/MeshToStrokes"))
+    {
+      AssetDatabase.CreateFolder("Assets","MeshToStrokes");
+    }
+
     bool cancel = false;
     try
     {
@@ -188,9 +193,6 @@ public class EditorUtils {
         nativeStrokeIDs.Dispose();
         originalTriangles.Dispose();
         vertexMap.Dispose();
-
-
-        AssetDatabase.CreateFolder("Assets",$"{baseNameForStrokeGameObject}_submeshes");
 
         const int PROGRESS_FREQUENCY = 1;
         int count = 0;
@@ -373,7 +375,7 @@ public class EditorUtils {
     newMesh.colors = colors ?? OriginalMesh.colors;
     newMesh.subMeshCount = OriginalMesh.subMeshCount;
     newMesh.normals = normals ?? OriginalMesh.normals;
-    AssetDatabase.CreateAsset(newMesh, $"Assets/{OriginalMesh.name}_submeshes/{OriginalMesh.name}_submesh[{index}].asset");
+    AssetDatabase.CreateAsset(newMesh, $"Assets/MeshToStrokes/{OriginalMesh.name}_submesh[{index}].asset");
     return newMesh;
   }
 
