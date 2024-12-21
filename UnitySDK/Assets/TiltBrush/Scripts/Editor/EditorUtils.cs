@@ -239,6 +239,7 @@ public class EditorUtils {
           Vector2[] uv = new Vector2[vertexCount];
           Vector3[] normals = new Vector3[vertexCount];
           Color[] colors = new Color[vertexCount];
+          Vector3[] uv2_ = new Vector3[vertexCount];
 
 
           NativeArray<int>.Copy(allNewTriangles, startingIndexInTrianglesArray, trianglesForStroke, 0, triangleCount);
@@ -246,9 +247,9 @@ public class EditorUtils {
           Array.Copy(mesh.uv, startingIndexInVerticesArray, uv, 0, vertexCount);
           Array.Copy(mesh.normals, startingIndexInVerticesArray, normals, 0, vertexCount);
           Array.Copy(mesh.colors, startingIndexInVerticesArray, colors, 0, vertexCount);
+          Array.Copy(mesh.uv2, startingIndexInVerticesArray, uv2_, 0, vertexCount);
 
-
-          var newMesh_ = GetMeshSubset(mesh,trianglesForStroke,vertices, uv, uv2.ToArray(),normals, colors, strokeIndex);
+          var newMesh_ = GetMeshSubset(mesh,trianglesForStroke,vertices, uv, uv2_,normals, colors, strokeIndex);
 
           strokeGameObject.GetComponent<MeshFilter>().mesh = newMesh_;
           strokeIndex++;
