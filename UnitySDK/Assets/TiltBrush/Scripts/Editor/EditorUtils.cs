@@ -91,12 +91,12 @@ public class EditorUtils {
   {
       GameObject go = meshFilter.gameObject;
       Mesh mesh = meshFilter.sharedMesh;
-      var uv2 = new List<Vector3>();
-      mesh.GetUVs(2,uv2);
+      var uv3 = new List<Vector3>();
+      mesh.GetUVs(2,uv3);
 
       bool cancel = false;
 
-      if (uv2.Count == 0)
+      if (uv3.Count == 0)
       {
         Debug.LogError($"Mesh ({mesh.name}) has no timestamps. Make sure the sketch was exported from Open Brush with ExportStrokeTimestamp = true");
       }
@@ -122,17 +122,17 @@ public class EditorUtils {
         for (int i = 0; i < mesh.vertexCount; i++)
         {
 
-          if (!vertexCounts.ContainsKey(uv2[i].x))
+          if (!vertexCounts.ContainsKey(uv3[i].x))
           {
-            vertexCounts.Add(uv2[i].x,1);
-            strokeIDs.Add(uv2[i].x);
+            vertexCounts.Add(uv3[i].x,1);
+            strokeIDs.Add(uv3[i].x);
             GameObject strokeGameObject = GameObject.Instantiate(go, go.transform.position, go.transform.rotation);
             Undo.RegisterCreatedObjectUndo(strokeGameObject, "Separate mesh to strokes");
             strokeGameObjects.Add(strokeGameObject);
           }
           else
           {
-            vertexCounts[uv2[i].x]++;
+            vertexCounts[uv3[i].x]++;
           }
 
         }
@@ -162,13 +162,13 @@ public class EditorUtils {
         NativeArray<int> triangleCounts = new NativeArray<int>(strokeIDs.Count, Allocator.Persistent);
         NativeArray<int> originalTriangles = new NativeArray<int>(mesh.triangles, Allocator.Persistent);
         NativeArray<float> nativeStrokeIDs = new NativeArray<float>(strokeIDs.ToArray(), Allocator.Persistent);
-        NativeArray<Vector3> nativeUV2 = new NativeArray<Vector3>(uv2.ToArray(), Allocator.Persistent);
+        NativeArray<Vector3> nativeUV3 = new NativeArray<Vector3>(uv3.ToArray(), Allocator.Persistent);
 
         var job1 = new TriangleCountJob()
         {
           triangles = originalTriangles,
           triangleCounts = triangleCounts,
-          uv2 = nativeUV2,
+          uv3 = nativeUV3,
           strokeIDs = nativeStrokeIDs
         };
 
@@ -179,7 +179,7 @@ public class EditorUtils {
         var job2 = new VertexMapJob()
         {
           vertexMap = vertexMap,
-          uv2 = nativeUV2,
+          uv3 = nativeUV3,
           strokeIDs = nativeStrokeIDs
         };
 
@@ -189,7 +189,7 @@ public class EditorUtils {
 
         var job3 = new TriangleArrayCopyJob()
         {
-          uv2 = nativeUV2,
+          uv3 = nativeUV3,
           strokeIDs = nativeStrokeIDs,
           originalTriangles = originalTriangles,
           triangleCounts = triangleCounts,
@@ -201,7 +201,7 @@ public class EditorUtils {
         job3.Complete();
 
         // allNewTriangles and triangleCounts will be disposed after mesh generation
-        nativeUV2.Dispose();
+        nativeUV3.Dispose();
         nativeStrokeIDs.Dispose();
         originalTriangles.Dispose();
         vertexMap.Dispose();
@@ -239,17 +239,22 @@ public class EditorUtils {
           Vector2[] uv = new Vector2[vertexCount];
           Vector3[] normals = new Vector3[vertexCount];
           Color[] colors = new Color[vertexCount];
-          Vector3[] uv2_ = new Vector3[vertexCount];
+          Vector3[] uv2 = new Vector3[vertexCount];
+          Vector3[] uv3_subset = new Vector3[vertexCount];
 
+          List<Vector3> uv2_full = new List<Vector3>();
+          mesh.GetUVs(1,uv2_full);
 
           NativeArray<int>.Copy(allNewTriangles, startingIndexInTrianglesArray, trianglesForStroke, 0, triangleCount);
           Array.Copy(mesh.vertices, startingIndexInVerticesArray, vertices, 0, vertexCount);
           Array.Copy(mesh.uv, startingIndexInVerticesArray, uv, 0, vertexCount);
           Array.Copy(mesh.normals, startingIndexInVerticesArray, normals, 0, vertexCount);
           Array.Copy(mesh.colors, startingIndexInVerticesArray, colors, 0, vertexCount);
-          Array.Copy(mesh.uv2, startingIndexInVerticesArray, uv2_, 0, vertexCount);
+          Array.Copy(uv3.ToArray(), startingIndexInVerticesArray, uv3_subset, 0, vertexCount);
+          Array.Copy(uv2_full.ToArray(), startingIndexInVerticesArray, uv2, 0, vertexCount);
 
-          var newMesh_ = GetMeshSubset(mesh,trianglesForStroke,vertices, uv, uv2_,normals, colors, strokeIndex);
+
+          var newMesh_ = GetMeshSubset(mesh,trianglesForStroke,vertices, uv, uv2,uv3_subset,normals, colors, strokeIndex);
 
           strokeGameObject.GetComponent<MeshFilter>().mesh = newMesh_;
           strokeIndex++;
@@ -377,13 +382,19 @@ public class EditorUtils {
     return v;
   }
 
-  public static Mesh GetMeshSubset(Mesh OriginalMesh, int[] Triangles, Vector3[] vertices = null, Vector2[] uv = null, Vector3[] uv2 =  null, Vector3[] normals = null,
+  public static Mesh GetMeshSubset(Mesh OriginalMesh, int[] Triangles, Vector3[] vertices = null, Vector2[] uv = null, Vector3[] uv2 =  null,
+    Vector3[] uv3 = null,
+    Vector3[] normals = null,
     Color[] colors = null, int index = 0) {
     Mesh newMesh = new Mesh();
     newMesh.name = OriginalMesh.name;
     newMesh.vertices = vertices ?? OriginalMesh.vertices;
     newMesh.triangles = Triangles;
     newMesh.uv = uv ?? OriginalMesh.uv;
+    if (uv3 != null)
+    {
+      newMesh.SetUVs(2,uv3);
+    }
     if (uv2 != null)
     {
       newMesh.SetUVs(1,uv2);

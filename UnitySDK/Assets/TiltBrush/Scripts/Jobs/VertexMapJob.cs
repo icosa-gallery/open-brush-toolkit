@@ -12,7 +12,7 @@ public struct VertexMapJob : IJobParallelFor
 
     [ReadOnly] public NativeArray<float> strokeIDs;
 
-    [ReadOnly] public NativeArray<Vector3> uv2;
+    [ReadOnly] public NativeArray<Vector3> uv3;
 
     [NativeDisableParallelForRestriction]
     public NativeArray<int> vertexMap;
@@ -26,11 +26,11 @@ public struct VertexMapJob : IJobParallelFor
         bool lookingForStartingIndex = true;
 
 
-        for (int i = 0; i < uv2.Length; i++)
+        for (int i = 0; i < uv3.Length; i++)
         {
             if (lookingForStartingIndex)
             {
-                if (MathematicsUtils.AreFloatsEqual(uv2[i].x, strokeId))
+                if (MathematicsUtils.AreFloatsEqual(uv3[i].x, strokeId))
                 {
                     startingVertexIndex = i;
                     lookingForStartingIndex = false;
@@ -39,7 +39,7 @@ public struct VertexMapJob : IJobParallelFor
             else
             {
                 // we're done
-                if (!MathematicsUtils.AreFloatsEqual(uv2[i].x, strokeId))
+                if (!MathematicsUtils.AreFloatsEqual(uv3[i].x, strokeId))
                 {
                     break;
                 }

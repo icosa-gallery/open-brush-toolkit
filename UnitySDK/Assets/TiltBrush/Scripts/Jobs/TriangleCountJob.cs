@@ -16,7 +16,7 @@ public struct TriangleCountJob : IJobParallelFor
     public NativeArray<float> strokeIDs;
 
     [ReadOnly]
-    public NativeArray<Vector3> uv2;
+    public NativeArray<Vector3> uv3;
 
     public NativeArray<int> triangleCounts; // Output: The count of triangles for each stroke
 
@@ -27,7 +27,7 @@ public struct TriangleCountJob : IJobParallelFor
         float targetStrokeID = strokeIDs[index];
         for (int i = 0; i < triangles.Length; i += 3)
         {
-            if (MathematicsUtils.AreFloatsEqual(targetStrokeID, uv2[triangles[i]].x))
+            if (MathematicsUtils.AreFloatsEqual(targetStrokeID, uv3[triangles[i]].x))
             {
                 triangleCounts[index] += 3;
             }

@@ -10,7 +10,7 @@ using UnityEngine;
 public struct TriangleArrayCopyJob : IJobParallelFor
 {
     [ReadOnly]
-    public NativeArray<Vector3> uv2;
+    public NativeArray<Vector3> uv3;
 
     [ReadOnly] public NativeArray<float> strokeIDs;
 
@@ -40,7 +40,7 @@ public struct TriangleArrayCopyJob : IJobParallelFor
         // we iterate the vertices
         for (int i = 0; i < originalTriangles.Length; i += 3)
         {
-            if (MathematicsUtils.AreFloatsEqual(targetStrokeID, uv2[originalTriangles[i]].x))
+            if (MathematicsUtils.AreFloatsEqual(targetStrokeID, uv3[originalTriangles[i]].x))
             {
                 triangles[startingIndex + triangleIndex] = vertexMap[originalTriangles[i]];
                 triangles[startingIndex + triangleIndex + 1] = vertexMap[originalTriangles[i+1]];
