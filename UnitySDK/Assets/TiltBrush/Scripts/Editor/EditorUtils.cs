@@ -55,16 +55,28 @@ public class EditorUtils {
     {
       foreach (var obj in selected)
       {
-        MeshFilter mf = obj.GetComponent<MeshFilter>();
-        MeshRenderer mr = mf.GetComponent<MeshRenderer>();
-        cancel = MeshToStroke(mf);
-        if (cancel)
+        try
         {
-          Undo.RevertAllInCurrentGroup();
-          break;
+          MeshFilter mf = obj.GetComponent<MeshFilter>();
+          if (mf == null) throw new MissingComponentException($"Missing MeshFilter on {obj.name}");
+
+          MeshRenderer mr = mf.GetComponent<MeshRenderer>();
+          if (mr == null) throw new MissingComponentException($"Missing MeshRenderer on {obj.name}");
+
+          cancel = MeshToStroke(mf);
+          if (cancel)
+          {
+            Undo.RevertAllInCurrentGroup();
+            break;
+          }
+
+          Undo.DestroyObjectImmediate(mf);
+          Undo.DestroyObjectImmediate(mr);
         }
-        Undo.DestroyObjectImmediate(mf);
-        Undo.DestroyObjectImmediate(mr);
+        catch (MissingComponentException ex)
+        {
+          Debug.LogError($"Error processing object {obj.name}: {ex.Message}");
+        }
       }
     }
     finally // since we call AssetDatabase.StartAssetEditing(), we must also call AssetDatabase.StopAssetEditing()
