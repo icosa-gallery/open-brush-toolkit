@@ -43,23 +43,33 @@ public class EditorUtils {
     Undo.IncrementCurrentGroup();
     Undo.SetCurrentGroupName("Separate mesh to strokes");
 
+    bool cancel = false;
     foreach (var obj in selected)
     {
       MeshFilter mf = obj.GetComponent<MeshFilter>();
       MeshRenderer mr = mf.GetComponent<MeshRenderer>();
-      MeshToStroke(mf);
+      cancel = MeshToStroke(mf);
+      if (cancel)
+      {
+        Undo.RevertAllInCurrentGroup();
+        break;
+      }
       Undo.DestroyObjectImmediate(mf);
       Undo.DestroyObjectImmediate(mr);
     }
+    AssetDatabase.Refresh();
+    EditorUtility.ClearProgressBar();
   }
 
   // separate a mesh into strokes by timestamp in UV2
-  private static void MeshToStroke(MeshFilter meshFilter)
+  private static bool MeshToStroke(MeshFilter meshFilter)
   {
       GameObject go = meshFilter.gameObject;
       Mesh mesh = meshFilter.sharedMesh;
       var uv2 = new List<Vector3>();
       mesh.GetUVs(2,uv2);
+
+      bool cancel = false;
 
       if (uv2.Count == 0)
       {
@@ -174,9 +184,17 @@ public class EditorUtils {
 
         AssetDatabase.CreateFolder("Assets",$"{baseNameForStrokeGameObject}_submeshes");
 
+        const int PROGRESS_FREQUENCY = 1;
+        int count = 0;
+
         int strokeIndex = 0;
         foreach (float strokeId in strokeIDs)
         {
+          if (++count > PROGRESS_FREQUENCY) {
+            count = 0;
+            cancel = EditorUtility.DisplayCancelableProgressBar("Creating strokes", "Processing " + mesh.name, (float)strokeIndex / (float)strokeIDs.Count);
+            if (cancel) break;
+          }
 
           GameObject strokeGameObject = strokeGameObjects[strokeIndex];
           strokeGameObject.transform.SetParent(go.transform);
@@ -216,6 +234,8 @@ public class EditorUtils {
         allNewTriangles.Dispose();
         triangleCounts.Dispose();
       }
+
+      return cancel;
   }
 
   [MenuItem("Tilt Brush/Labs/Separate strokes by brush color")]
