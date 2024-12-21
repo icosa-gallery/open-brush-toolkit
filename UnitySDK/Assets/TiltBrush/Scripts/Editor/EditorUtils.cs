@@ -91,7 +91,7 @@ public class EditorUtils {
         List<GameObject> strokeGameObjects = new List<GameObject>();
 
         string baseNameForStrokeGameObject = go.name;
-        Undo.RecordObject(go,"Separate sketch by color");
+        Undo.RecordObject(go,"Separate mesh to strokes");
         go.name += " (separated)";
 
         for (int i = 0; i < mesh.vertexCount; i++)
@@ -102,7 +102,7 @@ public class EditorUtils {
             vertexCounts.Add(uv2[i].x,1);
             strokeIDs.Add(uv2[i].x);
             GameObject strokeGameObject = GameObject.Instantiate(go, go.transform.position, go.transform.rotation);
-            Undo.RegisterCreatedObjectUndo(strokeGameObject, "Separate sketch by color");
+            Undo.RegisterCreatedObjectUndo(strokeGameObject, "Separate mesh to strokes");
             strokeGameObjects.Add(strokeGameObject);
           }
           else
