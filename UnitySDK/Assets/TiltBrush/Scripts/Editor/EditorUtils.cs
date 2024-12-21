@@ -12,9 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+using System;
 using UnityEngine;
 using UnityEditor;
 using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using Unity.Collections;
+using Unity.Jobs;
+using UnityEditor.PackageManager;
+using Object = UnityEngine.Object;
 using System.IO;
 
 namespace TiltBrushToolkit {
@@ -22,6 +29,194 @@ namespace TiltBrushToolkit {
 public class EditorUtils {
 
   #region Tilt Menu
+
+  [MenuItem("Tilt Brush/Labs/Mesh To Strokes")]
+  public static void MeshToStrokes()
+  {
+    GameObject[] selected = Selection.gameObjects;
+
+    if (selected == null || selected.Length == 0)
+    {
+      return;
+    }
+
+    Undo.IncrementCurrentGroup();
+    Undo.SetCurrentGroupName("Separate mesh to strokes");
+
+    foreach (var obj in selected)
+    {
+      MeshFilter mf = obj.GetComponent<MeshFilter>();
+      MeshRenderer mr = mf.GetComponent<MeshRenderer>();
+      MeshToStroke(mf);
+      Undo.DestroyObjectImmediate(mf);
+      Undo.DestroyObjectImmediate(mr);
+    }
+  }
+
+  // separate a mesh into strokes by timestamp in UV2
+  private static void MeshToStroke(MeshFilter meshFilter)
+  {
+      GameObject go = meshFilter.gameObject;
+      Mesh mesh = meshFilter.sharedMesh;
+      var uv2 = new List<Vector3>();
+      mesh.GetUVs(2,uv2);
+
+      if (uv2.Count == 0)
+      {
+        Debug.LogError($"Mesh ({mesh.name}) has no timestamps. Make sure the sketch was exported from Open Brush with ExportStrokeTimestamp = true");
+      }
+      else
+      {
+
+        List<float> strokeIDs = new List<float>();
+
+        // is using float safe as a key?
+        // for our use case, yes.
+        // if we were calculating the key by e.g adding two floats together, that'd be a problem
+        Dictionary<float, int> vertexCounts = new Dictionary<float, int>();
+
+        // we create the strokeGameObjects already here, because later (when we create the meshes) we parent them to 'go'
+        // but if we call SetParent for each one here right after it has been instantiated
+        // then in the next iteration, GameObject.Instantiate(go,..) will also clone the children that were parented
+        List<GameObject> strokeGameObjects = new List<GameObject>();
+
+        string baseNameForStrokeGameObject = go.name;
+        Undo.RecordObject(go,"Separate sketch by color");
+        go.name += " (separated)";
+
+        for (int i = 0; i < mesh.vertexCount; i++)
+        {
+
+          if (!vertexCounts.ContainsKey(uv2[i].x))
+          {
+            vertexCounts.Add(uv2[i].x,1);
+            strokeIDs.Add(uv2[i].x);
+            GameObject strokeGameObject = GameObject.Instantiate(go, go.transform.position, go.transform.rotation);
+            Undo.RegisterCreatedObjectUndo(strokeGameObject, "Separate sketch by color");
+            strokeGameObjects.Add(strokeGameObject);
+          }
+          else
+          {
+            vertexCounts[uv2[i].x]++;
+          }
+
+        }
+
+
+
+        /*
+         * We use 3 jobs to set up the data needed for creating the new meshes.
+         *
+         * - Jobs 1 and 2 create data that Job 3 needs
+         *
+         * - All jobs are IParallelFor, and Execute(index) runs for the index-th stroke
+         *
+         * Jobs:
+         * 1. The first job will calculate how many triangles each new mesh will have.
+         *
+         * 2. The second job will create a 1d array that maps each vertex in OriginalMesh.vertices
+         *    to that vertex's index in the new mesh's vertex array.
+         *
+         * 3. The third job populates a 1d array that holds all the new triangle arrays in continuous memory. (There are no Native 2d arrays)
+         *  - This job depends on (2), because when creating the new triangles arrays, the .triangles array must reference indices in the new vertex array
+         *  - This job depends on (1), because it needs to know the length of each strokes triangle array, in order
+         *    to calculate the starting index for a stroke's triangle array.
+         */
+
+
+        NativeArray<int> triangleCounts = new NativeArray<int>(strokeIDs.Count, Allocator.Persistent);
+        NativeArray<int> originalTriangles = new NativeArray<int>(mesh.triangles, Allocator.Persistent);
+        NativeArray<float> nativeStrokeIDs = new NativeArray<float>(strokeIDs.ToArray(), Allocator.Persistent);
+        NativeArray<Vector3> nativeUV2 = new NativeArray<Vector3>(uv2.ToArray(), Allocator.Persistent);
+
+        var job1 = new TriangleCountJob()
+        {
+          triangles = originalTriangles,
+          triangleCounts = triangleCounts,
+          uv2 = nativeUV2,
+          strokeIDs = nativeStrokeIDs
+        };
+
+        var job1Handle = job1.Schedule(strokeIDs.Count, 1);
+
+        NativeArray<int> vertexMap = new NativeArray<int>(mesh.vertexCount, Allocator.Persistent);
+
+        var job2 = new VertexMapJob()
+        {
+          vertexMap = vertexMap,
+          uv2 = nativeUV2,
+          strokeIDs = nativeStrokeIDs
+        };
+
+        var job2Handle = job2.Schedule(strokeIDs.Count, 1);
+
+        NativeArray<int> allNewTriangles = new NativeArray<int>(mesh.triangles.Length, Allocator.Persistent);
+
+        var job3 = new TriangleArrayCopyJob()
+        {
+          uv2 = nativeUV2,
+          strokeIDs = nativeStrokeIDs,
+          originalTriangles = originalTriangles,
+          triangleCounts = triangleCounts,
+          vertexMap = vertexMap,
+          triangles = allNewTriangles,
+        }.Schedule(strokeIDs.Count, 1, JobHandle.CombineDependencies(job1Handle,job2Handle));
+
+        JobHandle.CompleteAll(ref job1Handle, ref job2Handle);
+        job3.Complete();
+
+        // allNewTriangles and triangleCounts will be disposed after mesh generation
+        nativeUV2.Dispose();
+        nativeStrokeIDs.Dispose();
+        originalTriangles.Dispose();
+        vertexMap.Dispose();
+
+
+        AssetDatabase.CreateFolder("Assets",$"{baseNameForStrokeGameObject}_submeshes");
+
+        int strokeIndex = 0;
+        foreach (float strokeId in strokeIDs)
+        {
+
+          GameObject strokeGameObject = strokeGameObjects[strokeIndex];
+          strokeGameObject.transform.SetParent(go.transform);
+          strokeGameObject.name =  $"{baseNameForStrokeGameObject} ({strokeIndex})";
+
+          int startingIndexInTrianglesArray = 0;
+          int startingIndexInVerticesArray = 0;
+          int triangleCount = triangleCounts[strokeIndex];
+          int vertexCount = vertexCounts[strokeId];
+
+          for (int i = 0; i < strokeIndex; i++)
+          {
+            float strokeId_ = strokeIDs[i];
+            startingIndexInTrianglesArray += triangleCounts[i];
+            startingIndexInVerticesArray += vertexCounts[strokeId_];
+          }
+
+          int[] trianglesForStroke = new int[triangleCount];
+          Vector3[] vertices = new Vector3[vertexCount];
+          Vector2[] uv = new Vector2[vertexCount];
+          Vector3[] normals = new Vector3[vertexCount];
+          Color[] colors = new Color[vertexCount];
+
+          NativeArray<int>.Copy(allNewTriangles, startingIndexInTrianglesArray, trianglesForStroke, 0, triangleCount);
+          Array.Copy(mesh.vertices, startingIndexInVerticesArray, vertices, 0, vertexCount);
+          Array.Copy(mesh.uv, startingIndexInVerticesArray, uv, 0, vertexCount);
+          Array.Copy(mesh.normals, startingIndexInVerticesArray, normals, 0, vertexCount);
+          Array.Copy(mesh.colors, startingIndexInVerticesArray, colors, 0, vertexCount);
+
+
+          var newMesh_ = GetMeshSubset(mesh,trianglesForStroke,vertices, uv, normals, colors, strokeIndex);
+
+          strokeGameObject.GetComponent<MeshFilter>().mesh = newMesh_;
+          strokeIndex++;
+        }
+
+        allNewTriangles.Dispose();
+        triangleCounts.Dispose();
+      }
+  }
 
   [MenuItem("Tilt Brush/Labs/Separate strokes by brush color")]
   public static void ExplodeSketchByColor() {
@@ -138,20 +333,23 @@ public class EditorUtils {
     return v;
   }
 
-  public static Mesh GetMeshSubset(Mesh OriginalMesh, int[] Triangles) {
+  public static Mesh GetMeshSubset(Mesh OriginalMesh, int[] Triangles, Vector3[] vertices = null, Vector2[] uv = null, Vector3[] normals = null,
+    Color[] colors = null, int index = 0) {
     Mesh newMesh = new Mesh();
     newMesh.name = OriginalMesh.name;
-    newMesh.vertices = OriginalMesh.vertices;
+    newMesh.vertices = vertices ?? OriginalMesh.vertices;
     newMesh.triangles = Triangles;
-    newMesh.uv = OriginalMesh.uv;
-    newMesh.uv2 = OriginalMesh.uv2;
-    newMesh.uv2 = OriginalMesh.uv2;
-    newMesh.colors = OriginalMesh.colors;
+    newMesh.uv = uv ?? OriginalMesh.uv;
+    //newMesh.uv2 = OriginalMesh.uv2; <-- not needed for now
+    // newMesh.uv3 = OriginalMesh.uv3;
+    newMesh.colors = colors ?? OriginalMesh.colors;
     newMesh.subMeshCount = OriginalMesh.subMeshCount;
-    newMesh.normals = OriginalMesh.normals;
-    //AssetDatabase.CreateAsset(newMesh, "Assets/"+mesh.name+"_submesh["+index+"].asset");
+    newMesh.normals = normals ?? OriginalMesh.normals;
+    AssetDatabase.CreateAsset(newMesh, $"Assets/{OriginalMesh.name}_submeshes/{OriginalMesh.name}_submesh[{index}].asset");
     return newMesh;
   }
+
+
 
   #endregion
 
