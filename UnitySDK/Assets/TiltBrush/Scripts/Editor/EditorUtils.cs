@@ -43,22 +43,30 @@ public class EditorUtils {
     Undo.IncrementCurrentGroup();
     Undo.SetCurrentGroupName("Separate mesh to strokes");
 
+    AssetDatabase.StartAssetEditing();
+
     bool cancel = false;
-    foreach (var obj in selected)
+    try
     {
-      MeshFilter mf = obj.GetComponent<MeshFilter>();
-      MeshRenderer mr = mf.GetComponent<MeshRenderer>();
-      cancel = MeshToStroke(mf);
-      if (cancel)
+      foreach (var obj in selected)
       {
-        Undo.RevertAllInCurrentGroup();
-        break;
+        MeshFilter mf = obj.GetComponent<MeshFilter>();
+        MeshRenderer mr = mf.GetComponent<MeshRenderer>();
+        cancel = MeshToStroke(mf);
+        if (cancel)
+        {
+          Undo.RevertAllInCurrentGroup();
+          break;
+        }
+        Undo.DestroyObjectImmediate(mf);
+        Undo.DestroyObjectImmediate(mr);
       }
-      Undo.DestroyObjectImmediate(mf);
-      Undo.DestroyObjectImmediate(mr);
     }
-    AssetDatabase.Refresh();
-    EditorUtility.ClearProgressBar();
+    finally // since we call AssetDatabase.StartAssetEditing(), we must also call AssetDatabase.StopAssetEditing()
+    {
+      EditorUtility.ClearProgressBar();
+      AssetDatabase.StopAssetEditing();
+    }
   }
 
   // separate a mesh into strokes by timestamp in UV2
