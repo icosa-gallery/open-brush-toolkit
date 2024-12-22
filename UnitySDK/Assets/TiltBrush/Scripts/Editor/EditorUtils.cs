@@ -246,13 +246,18 @@ public class EditorUtils {
           mesh.GetUVs(1,uv2_full);
 
           NativeArray<int>.Copy(allNewTriangles, startingIndexInTrianglesArray, trianglesForStroke, 0, triangleCount);
-          Array.Copy(mesh.vertices, startingIndexInVerticesArray, vertices, 0, vertexCount);
-          Array.Copy(mesh.uv, startingIndexInVerticesArray, uv, 0, vertexCount);
-          Array.Copy(mesh.normals, startingIndexInVerticesArray, normals, 0, vertexCount);
-          Array.Copy(mesh.colors, startingIndexInVerticesArray, colors, 0, vertexCount);
-          Array.Copy(uv3.ToArray(), startingIndexInVerticesArray, uv3_subset, 0, vertexCount);
-          Array.Copy(uv2_full.ToArray(), startingIndexInVerticesArray, uv2, 0, vertexCount);
 
+          CopyMeshAttribute(mesh.vertices,vertices,startingIndexInVerticesArray,vertexCount);
+
+          CopyMeshAttribute(mesh.uv, uv, startingIndexInVerticesArray, vertexCount);
+
+          CopyMeshAttribute(mesh.normals, normals, startingIndexInVerticesArray, vertexCount);
+
+          CopyMeshAttribute(mesh.colors, colors, startingIndexInVerticesArray, vertexCount);
+
+          CopyMeshAttribute(uv2_full.ToArray(), uv2, startingIndexInVerticesArray, vertexCount);
+
+          CopyMeshAttribute(uv3.ToArray(), uv3_subset, startingIndexInVerticesArray, vertexCount);
 
           var newMesh_ = GetMeshSubset(mesh,trianglesForStroke,vertices, uv, uv2,uv3_subset,normals, colors, strokeIndex);
 
@@ -265,6 +270,21 @@ public class EditorUtils {
       }
 
       return cancel;
+  }
+
+  // copy elements from sourceArray to destinationArray starting at startingIndexInSource,
+  // making sure that bounds aren't exceeded
+  // The purpose of this function is because e.g Dots stroke has uv2, but OilPaint stroke doesn't.
+  private static void CopyMeshAttribute<T>(
+    T[] sourceArray,
+    T[] destinationArray,
+    int startingIndexInSource,
+    int vertexCount)
+  {
+    if (sourceArray != null && sourceArray.Length >= startingIndexInSource + vertexCount)
+    {
+      Array.Copy(sourceArray, startingIndexInSource, destinationArray, 0, vertexCount);
+    }
   }
 
   [MenuItem("Tilt Brush/Labs/Separate strokes by brush color")]
