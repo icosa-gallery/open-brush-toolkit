@@ -426,7 +426,8 @@ public class EditorUtils {
     newMesh.colors = colors ?? OriginalMesh.colors;
     newMesh.subMeshCount = OriginalMesh.subMeshCount;
     newMesh.normals = normals ?? OriginalMesh.normals;
-    AssetDatabase.CreateAsset(newMesh, $"Assets/MeshToStrokes/{OriginalMesh.name}_submesh[{index}].asset");
+    string assetName = AssetDatabase.GenerateUniqueAssetPath($"Assets/MeshToStrokes/{OriginalMesh.name}_submesh[{index}].asset");
+    AssetDatabase.CreateAsset(newMesh, assetName);
     return newMesh;
   }
 
