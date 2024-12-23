@@ -77,6 +77,10 @@ public class EditorUtils {
         {
           Debug.LogError($"Error processing object {obj.name}: {ex.Message}");
         }
+        catch (InvalidOperationException ex)
+        {
+          Debug.LogError($"Error processing object {obj.name}: {ex.Message}");
+        }
       }
     }
     finally // since we call AssetDatabase.StartAssetEditing(), we must also call AssetDatabase.StopAssetEditing()
@@ -98,7 +102,7 @@ public class EditorUtils {
 
       if (uv3.Count == 0)
       {
-        Debug.LogError($"Mesh ({mesh.name}) has no timestamps. Make sure the sketch was exported from Open Brush with ExportStrokeTimestamp = true");
+        throw new InvalidOperationException($"Mesh ({mesh.name}) has no timestamps. Make sure the sketch was exported from Open Brush with ExportStrokeTimestamp = true");
       }
       else
       {
