@@ -123,6 +123,21 @@ public class EditorUtils {
         Undo.RecordObject(go,"Separate mesh to strokes");
         go.name += " (separated)";
 
+        // explanation of the following 6 lines:
+        // - the new meshes that get created are parented to 'go', which holds the mesh originally
+        // - we reset go's local transform
+        // - and we copy go's transform to the new mesh gameobjects (this is done later in the code, when GetMeshSubset is used)
+        // This ensures that nothing changes visually when the tool is used
+        // The other approach would be to apply the transform to the mesh data, but I think it's better to not modify the mesh data
+        // as it's saved as an asset
+        Vector3 originalScale = go.transform.localScale;
+        Vector3 originalPosition = go.transform.localPosition;
+        Quaternion originalRotation = go.transform.localRotation;
+
+        go.transform.localScale = new Vector3(1, 1, 1);
+        go.transform.localPosition = Vector3.zero;
+        go.transform.localRotation = Quaternion.identity;
+
         for (int i = 0; i < mesh.vertexCount; i++)
         {
 
@@ -130,7 +145,7 @@ public class EditorUtils {
           {
             vertexCounts.Add(uv3[i].x,1);
             strokeIDs.Add(uv3[i].x);
-            GameObject strokeGameObject = GameObject.Instantiate(go, go.transform.position, go.transform.rotation);
+            GameObject strokeGameObject = GameObject.Instantiate(go);
             Undo.RegisterCreatedObjectUndo(strokeGameObject, "Separate mesh to strokes");
             strokeGameObjects.Add(strokeGameObject);
           }
@@ -223,7 +238,13 @@ public class EditorUtils {
           }
 
           GameObject strokeGameObject = strokeGameObjects[strokeIndex];
-          strokeGameObject.transform.SetParent(go.transform);
+
+          // These 3 lines ensure that nothing changes visually when the tool is used
+          strokeGameObject.transform.localPosition = originalPosition;
+          strokeGameObject.transform.localScale = originalScale;
+          strokeGameObject.transform.localRotation = originalRotation;
+
+          strokeGameObject.transform.SetParent(go.transform,false);
           strokeGameObject.name =  $"{baseNameForStrokeGameObject} ({strokeIndex})";
 
           int startingIndexInTrianglesArray = 0;
