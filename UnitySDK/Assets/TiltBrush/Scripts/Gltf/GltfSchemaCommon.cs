@@ -268,7 +268,7 @@ public abstract class GltfNodeBase {
 
 [Serializable]
 public abstract class GltfSceneBase {
-  public Dictionary<string, string> extras;
+  public Dictionary<string, object> extras;
 
   public abstract IEnumerable<GltfNodeBase> Nodes { get; }
 }
