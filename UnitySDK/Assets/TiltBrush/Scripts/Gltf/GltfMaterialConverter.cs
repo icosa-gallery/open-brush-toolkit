@@ -59,7 +59,7 @@ public class GltfMaterialConverter {
 
   private static bool IsTiltBrushHostedUri(string uri) {
     // Will always look like "https://www.tiltbrush.com/shaders/..."
-    if (uri.Contains("://")) { return true; }
+    if (uri != null && uri.Contains("://")) { return true; }
     return false;
   }
 
@@ -413,7 +413,8 @@ public class GltfMaterialConverter {
       }
     }
 
-    tex.name = SanitizeName(gltfTexture.SourcePtr.uri);
+    string name = gltfTexture.SourcePtr.uri ?? ((Gltf2Image)gltfTexture.SourcePtr).name;
+    tex.name = SanitizeName(name);
     gltfTexture.unityTexture = tex;
   }
 
