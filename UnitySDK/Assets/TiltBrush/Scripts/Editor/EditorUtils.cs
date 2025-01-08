@@ -30,7 +30,7 @@ public class EditorUtils {
 
   #region Tilt Menu
 
-  [MenuItem("Tilt Brush/Labs/Mesh To Strokes")]
+  [MenuItem("Tilt Brush/Labs/Split mesh by stroke")]
   public static void MeshToStrokes()
   {
     GameObject[] selected = Selection.gameObjects;
@@ -41,13 +41,13 @@ public class EditorUtils {
     }
 
     Undo.IncrementCurrentGroup();
-    Undo.SetCurrentGroupName("Separate mesh to strokes");
+    Undo.SetCurrentGroupName("Split mesh by stroke");
 
     AssetDatabase.StartAssetEditing();
 
-    if (!AssetDatabase.IsValidFolder("Assets/MeshToStrokes"))
+    if (!AssetDatabase.IsValidFolder("Assets/SplitMeshByStroke"))
     {
-      AssetDatabase.CreateFolder("Assets","MeshToStrokes");
+      AssetDatabase.CreateFolder("Assets","SplitMeshByStroke");
     }
 
     bool cancel = false;
@@ -120,7 +120,7 @@ public class EditorUtils {
         List<GameObject> strokeGameObjects = new List<GameObject>();
 
         string baseNameForStrokeGameObject = go.name;
-        Undo.RecordObject(go,"Separate mesh to strokes");
+        Undo.RecordObject(go,"Split mesh by stroke");
         go.name += " (separated)";
 
         // explanation of the following 6 lines:
@@ -146,7 +146,7 @@ public class EditorUtils {
             vertexCounts.Add(uv3[i].x,1);
             strokeIDs.Add(uv3[i].x);
             GameObject strokeGameObject = GameObject.Instantiate(go);
-            Undo.RegisterCreatedObjectUndo(strokeGameObject, "Separate mesh to strokes");
+            Undo.RegisterCreatedObjectUndo(strokeGameObject, "Split mesh by stroke");
             strokeGameObjects.Add(strokeGameObject);
           }
           else
