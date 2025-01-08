@@ -312,12 +312,12 @@ public class EditorUtils {
     }
   }
 
-  [MenuItem("Tilt Brush/Labs/Separate strokes by brush color")]
+  [MenuItem("Tilt Brush/Labs/Split mesh by color")]
   public static void ExplodeSketchByColor() {
     if (!EditorUtility.DisplayDialog ("Different Strokes", "Separate brush strokes of different colors into separate objects? \n* Note: This is an experimental feature!", "OK", "Cancel"))
       return;
     Undo.IncrementCurrentGroup();
-    Undo.SetCurrentGroupName("Separate sketch by color");
+    Undo.SetCurrentGroupName("Split mesh by color");
     List<GameObject> newSelection = new List<GameObject>();
     bool cancel = false;
 
@@ -327,7 +327,7 @@ public class EditorUtils {
       if (cancel) break;
       var obj = GameObject.Instantiate(o, o.transform.position, o.transform.rotation) as GameObject;
       obj.name = o.name + " (Separated)";
-      Undo.RegisterCreatedObjectUndo(obj, "Separate sketch by color");
+      Undo.RegisterCreatedObjectUndo(obj, "Split mesh by color");
       newSelection.Add(obj);
       int count = 0;
 
@@ -379,7 +379,7 @@ public class EditorUtils {
           var newObj = GameObject.Instantiate(m.gameObject, m.transform.position, m.transform.rotation) as GameObject;
           newObj.name = string.Format("{0} {1}", m.name, colorIndex);
           newObj.transform.SetParent(m.transform.parent, true);
-          Undo.RegisterCreatedObjectUndo(newObj, "Separate sketch by color");
+          Undo.RegisterCreatedObjectUndo(newObj, "Split mesh by color");
 
           // get the subset of triangles for this color and make a new mesh out of it. TODO: only use the vertices used by the triangles
           var newMesh = GetMeshSubset(mesh, colors[color].ToArray());
@@ -400,7 +400,7 @@ public class EditorUtils {
     EditorUtility.ClearProgressBar();
   }
 
-  [MenuItem("Tilt Brush/Labs/Separate strokes by brush color", true)]
+  [MenuItem("Tilt Brush/Labs/Split mesh by color", true)]
   public static bool ExplodeSketchByColorValidate() {
     // TODO: validate that selection is a model
     foreach (var o in Selection.gameObjects) {
