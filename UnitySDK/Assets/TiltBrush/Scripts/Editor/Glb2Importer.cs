@@ -29,7 +29,7 @@ using UnityEditor.Experimental.AssetImporters;
 
 namespace TiltBrushToolkit {
 
-[ScriptedImporter(kVersion, "glb", kImportQueueOffset)]
+[ScriptedImporter(kVersion, new[]{"gltf", "glb"}, kImportQueueOffset)]
 public class Glb2Importer : ScriptedImporter {
   const int kVersion = 2;
   // ImportGltf needs to reference meshes and textures, so the glb import
