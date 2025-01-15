@@ -354,7 +354,7 @@ public class GltfMaterialConverter {
   }
 
   private static string SanitizeName(string uri) {
-    uri = System.IO.Path.ChangeExtension(uri, "");
+    uri = Path.ChangeExtension(uri, "") ?? "";
     return Regex.Replace(uri, @"[^a-zA-Z0-9_-]+", "");
   }
 
